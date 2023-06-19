@@ -1,0 +1,8 @@
+---
+postgresql_version: 12
+postgresql_service_name: postgresql-{{ postgresql_version }}
+postgresql_conf_dir: "/var/lib/pgsql/{{ postgresql_version }}/data"
+
+replica_user_name: replica
+
+replica_data_path: "{{ postgresql_conf_dir }}"

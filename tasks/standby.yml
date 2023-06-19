@@ -1,0 +1,31 @@
+---
+# PostgreSQL must be stopped and the data dir must be empty before replication
+- name: Stop PostgreSQL
+  service:
+    name: "{{ postgresql_service_name }}"
+    state: stopped
+
+- name: Clear out data directory
+  file:
+    path: "{{ replica_data_path }}"
+    state: absent
+
+- name: Create empty data directory
+  file:
+    path: "{{ replica_data_path }}"
+    state: directory
+    owner: postgres
+    group: postgres
+    mode: "0700"
+
+- name: Create base backup
+  become: true
+  become_user: postgres
+  command:
+    cmd: pg_basebackup -D {{ replica_data_path }} -h {{ master_ip }} -U {{ replica_user_name }} -P -v -R -X stream -C -S slaveslot1
+
+- name: Start and enable PostgreSQL
+  service:
+    name: "{{ postgresql_service_name }}"
+    state: started
+    enabled: yes

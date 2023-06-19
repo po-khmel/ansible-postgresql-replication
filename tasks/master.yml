@@ -1,0 +1,31 @@
+---
+- name: Add replica user
+  become: true
+  become_user: postgres
+  community.postgresql.postgresql_user:
+    name: "{{ replica_user_name }}"
+    password: "{{ replica_user_password }}"
+    role_attr_flags: replication
+
+- name: Enable hot standby
+  become: true
+  become_user: postgres
+  lineinfile:
+    state: present
+    backup: yes
+    dest: "{{ postgresql_conf_dir }}/postgresql.conf"
+    regexp: '^#?hot_standby = \w+(\s+#.*)'
+    line: 'hot_standby = on\1'
+    backrefs: yes
+
+# trust connection to avoid inserting password
+- name: Grant replica access
+  become: true
+  community.postgresql.postgresql_pg_hba:
+    dest: "{{ postgresql_conf_dir }}/pg_hba.conf"
+    contype: host
+    users: "{{ replica_user_name }}"
+    source: "{{ replica_ip }}/24"
+    databases: replication
+    method: trust
+  notify: Restart PostgreSQL

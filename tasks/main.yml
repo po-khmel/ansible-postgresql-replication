@@ -1,0 +1,8 @@
+---
+- name: Configure Master machine
+  include: master.yml
+  when: replication_role == 'master'
+
+- name: Configure Standby
+  include: standby.yml
+  when: replication_role == 'standby'

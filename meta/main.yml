@@ -1,0 +1,20 @@
+---
+galaxy_info:
+  author: Polina Khmelevskaia
+  description: The role configures PostgreSQL replication between 2 machines for usegalaxy.it
+  company: usegalaxy.it
+
+  license: GPL-2.0-or-later
+
+  min_ansible_version: "2.1"
+
+  platforms:
+    - name: EL
+      versions:
+        - "9"
+
+  galaxy_tags:
+    - postgresql
+    - replication
+
+dependencies: []

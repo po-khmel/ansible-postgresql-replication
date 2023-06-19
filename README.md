@@ -21,7 +21,8 @@ Check that IP addresses for 2 machines are defined in hostsvars or other vars fi
 
 Role Variables
 --------------
-
+`master_ip` (required) - IP address of a main database machine  
+`replica_ip` (required) - IP address of a standby machine
 `replication_role` (required) - defines which role to configure. Specify for each VM  
 `postgresql_version` - default to 12  
 `replica_user_name` - default to replica  

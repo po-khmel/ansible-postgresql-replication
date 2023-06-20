@@ -13,8 +13,9 @@ Ansible >= 2.7
 PostgreSQL >= 12  
  
 2 VM's are required. Make sure they have:  
-- installed PostgreSQL
-- postgres user
+- installed PostgreSQL  
+- postgres user  
+
 These options may be configured by galaxyproject.postgresql role.
 
 Check that IP addresses for 2 machines are defined in hostsvars or other vars files
@@ -30,33 +31,34 @@ Role Variables
 `replica_data_path` - the path to store the replicated data. Default to postgresql_conf_dir   
 `promote_trigger_file` - if this file exists on the standby server, standby is promoted to master  
 
-To enable synchronous replication you can uncomment last lines in <templates/ansible_replica.conf.j2>:  
-```
+To enable synchronous replication you can uncomment the last lines in `<templates/ansible_replica.conf.j2>`:  
+```jinja2
 synchronous_commit = remote_apply       # required for a synchronous replication  
 synchronous_standby_names = '*'         # list of standby servers that can support  
 ``` 
-You may need to add additional settings as the behaviour of standby in case of failover is different under synchronous replication. (Standby server will take this settings when becomes master and it'll not complete any write operations until data is replicated to some other standby)  
+You may need to add additional settings as the behaviour of standby in case of failover is different under synchronous replication. (Standby server will take these settings when becomes master and it'll not complete any write operations until data is replicated to some other standby)  
 
 Example Playbook
 ----------------
 
 How to use the role:
+```yaml
+- hosts: database
+  vars_files:
+    - path/to/secret/replica/password.yml
+  vars: 
+    replication_role: master
+  roles:
+     - usegalaxy-it.postgresql_replication
 
-    - hosts: database
-      vars_files:
-        - path/to/secret/replica/password.yml
-      vars: 
-        replication_role: master
-      roles:
-         - usegalaxy-it.postgresql_replication
-
-    - hosts: replica
-      vars_files:
-        - path/to/secret/replica/password.yml
-      vars: 
-        replication_role: standby
-      roles:
-         - usegalaxy-it.postgresql_replication
+- hosts: replica
+  vars_files:
+    - path/to/secret/replica/password.yml
+  vars: 
+    replication_role: standby
+  roles:
+     - usegalaxy-it.postgresql_replication
+```
 
 Checks
 ----------------
@@ -65,7 +67,7 @@ To check if the replication process is successful you can execute:
 
 ### on Master VM
 
-```
+```bash
 $ sudo su postgres
 
 $ psql
@@ -75,7 +77,7 @@ Expanded display is on.
 
 postgres=# select usename, application_name, client_addr, state, sync_priority, sync_state from pg_stat_replication;
 usename | application_name | client_addr     | state      | sync_priority | sync_state
----------+------------------+-----------------+-----------+---------------+------------
+--------+------------------+-----------------+------------+---------------+------------
 replica | walreceiver      | 192.168.208.186 | streaming  | 1             | async
 (1 row)
 
@@ -98,9 +100,9 @@ conninfo              | user=replica passfile=/var/lib/pgsql/.pgpass dbname=repl
 ```
 ### on Standby VM
 
-When the replication is ongoing, you can find `stanby.signal` in <postgresql_conf_dir> on a stanby server. And:
+When the replication is ongoing, you can find `stanby.signal` in `<postgresql_conf_dir>` on a stanby server. And:
 
-```
+```bash
 $ sudo su postgres
 
 $ psql
@@ -138,19 +140,20 @@ reply_time   	   | 2023-06-20 13:19:13.230384+00
 
 ## Manual Failover
 
-In case of failure of the master server, you have to **manually promote** stanby to become master. Since the <promote_trigger_file> is configured, the easiest way is:
+
+In case of failure of the master server, you have to **manually promote** standby to become master. Since the `<promote_trigger_file>` is configured, the easiest way is:
 
 1. connect to standby server
 2. `$ sudo su postgres`
 3. `touch <promote_trigger_file>`
-4. check absence of `stanby.signal` file in <postgresql_conf_dir>
+4. check the absence of `standby.signal` file in `<postgresql_conf_dir>`
 5. check if the replica can perform read-write operations:
   ```
   postgres=# create table t(n int);
   CREATE TABLE
   ```
 
-Now the replica is the master server. You will need to change IP of the postgres in you configuration or configure Load Balancer to redirect traffic to the new instance.
+Now the replica is the master server. You will need to change IP of the Postgres in your configuration or configure Load Balancer to redirect traffic to the new instance.
 
 License
 -------

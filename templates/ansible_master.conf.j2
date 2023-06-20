@@ -3,5 +3,7 @@ hot_standby = on
 wal_level = replica                     # level of logging for the write-ahead log
 max_wal_senders = 10                    # max number of concurrent connections
 wal_keep_segments = 32                  # min number of past log file segments kept in the pg_wal dir
-synchronous_commit = remote_apply       # required for a synchronous replication
-synchronous_standby_names = '*'         # list of standby servers that can support synchronous replication
+# settings below configure synchronous replication and 
+# are not compatible with failover 
+#synchronous_commit = remote_apply       # required for a synchronous replication
+#synchronous_standby_names = '*'         # list of standby servers that can support synchronous replication

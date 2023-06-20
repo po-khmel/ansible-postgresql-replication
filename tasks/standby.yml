@@ -29,8 +29,18 @@
   become: true
   become_user: postgres
   command:
-    cmd: pg_basebackup -D {{ replica_data_path }} -h {{ master_ip }} -U {{ replica_user_name }} -P -v -R -X stream -C -S slaveslot1
+    cmd: pg_basebackup -D {{ replica_data_path }} -h {{ master_ip }} -U {{ replica_user_name }} -P -R -X stream
   when: not replica_signal.stat.exists
+
+- name: Set config options
+  template:
+    src: ansible_replica.conf.j2
+    dest: "{{ postgresql_conf_dir }}/conf.d/ansible_replica.conf"
+    owner: "{{ postgresql_user_name }}"
+    group: "{{ postgresql_user_name }}"
+    mode: 0644
+    backup: true
+  notify: Reload PostgreSQL
 
 - name: Start and enable PostgreSQL
   service:

@@ -7,17 +7,6 @@
     password: "{{ replica_user_password }}"
     role_attr_flags: replication
 
-- name: Enable hot standby
-  become: true
-  become_user: postgres
-  lineinfile:
-    state: present
-    backup: yes
-    dest: "{{ postgresql_conf_dir }}/postgresql.conf"
-    regexp: '^#?hot_standby = \w+(\s+#.*)'
-    line: 'hot_standby = on\1'
-    backrefs: yes
-
 # trust connection to avoid inserting password
 - name: Grant replica access
   become: true
@@ -29,3 +18,13 @@
     databases: replication
     method: trust
   notify: Restart PostgreSQL
+
+- name: Set config options
+  template:
+    src: ansible_master.conf.j2
+    dest: "{{ postgresql_conf_dir }}/conf.d/ansible_master.conf"
+    owner: "{{ postgresql_user_name }}"
+    group: "{{ postgresql_user_name }}"
+    mode: 0644
+    backup: true
+  notify: Reload PostgreSQL

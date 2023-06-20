@@ -6,3 +6,4 @@ postgresql_conf_dir: "/var/lib/pgsql/{{ postgresql_version }}/data"
 replica_user_name: replica
 
 replica_data_path: "{{ postgresql_conf_dir }}"
+promote_trigger_file: /tmp/postgresql.trigger

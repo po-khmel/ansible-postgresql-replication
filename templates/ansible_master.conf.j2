@@ -2,7 +2,11 @@
 hot_standby = on
 wal_level = replica                     # level of logging for the write-ahead log
 max_wal_senders = 10                    # max number of concurrent connections
-wal_keep_segments = 32                  # min number of past log file segments kept in the pg_wal dir
+{% if postgresql_version >= 15  %}
+wal_keep_size = 32                      # min size of past log file segments kept in the pg_wal dir
+{% else %}
+wal_keep_segments = 2                   # min number of past log file segments kept in the pg_wal dir
+{% endif %}
 # settings below configure synchronous replication and 
 # are not compatible with failover 
 #synchronous_commit = remote_apply       # required for a synchronous replication

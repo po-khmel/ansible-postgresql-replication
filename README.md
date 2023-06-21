@@ -25,7 +25,7 @@ Role Variables
 `master_ip` (required) - IP address of a main database machine. May be set to `groups['database'][0]` where 'database' is the group host name of database VM  
 `replica_ip` (required) - IP address of a standby machine. May be set to `groups['replica'][0]` where 'replica' is the group host name of database VM  
 `replication_role` (required) - defines which role to configure. Specify for each VM  
-`postgresql_version` - default to 12  
+`postgresql_version` - default to 15  
 `replica_user_name` - default to replica  
 `replica_user_password` (required) - set the password and store it in a vault encrypted file  
 `replica_data_path` - the path to store the replicated data. Default to postgresql_conf_dir   

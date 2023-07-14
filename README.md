@@ -38,6 +38,8 @@ synchronous_standby_names = '*'         # list of standby servers that can suppo
 ``` 
 You may need to add additional settings as the behaviour of standby in case of failover is different under synchronous replication. (Standby server will take these settings when becomes master and it'll not complete any write operations until data is replicated to some other standby)  
 
+**NB!** If the replication is ongoing, and you can find `stanby.signal` in `<postgresql_conf_dir>`, the existing `<replica_data_path>` will not be deleted and `pg_basebackup` will not run. Only configuration changes will be applied.
+
 Example Playbook
 ----------------
 
